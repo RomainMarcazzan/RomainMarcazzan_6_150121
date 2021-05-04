@@ -1,8 +1,21 @@
 const Sauce = require("../models/Sauce");
 const fs = require("fs");
+const validator = require("validator");
 
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
+  if (
+    sauceObject.name.isLength({ min: 5, max: 255 }) ||
+    sauceObject.manufacturer.isLength({ min: 5, max: 255 }) ||
+    sauceObject.description.isLength({ min: 5, max: 255 }) ||
+    sauceObject.mainPepper.isLength({ min: 5, max: 255 }) == false
+  ) {
+    res.status(400).json({
+      message:
+        "Format d'informations invalide, la longueur minimum d'une information doit être de 5 caractères",
+    });
+    return;
+  }
   delete sauceObject._id;
   const sauce = new Sauce({
     ...sauceObject,
@@ -25,6 +38,18 @@ exports.modifySauce = (req, res, next) => {
         }`,
       }
     : { ...req.body };
+  if (
+    sauceObject.name.isLength({ min: 5, max: 255 }) ||
+    sauceObject.manufacturer.isLength({ min: 5, max: 255 }) ||
+    sauceObject.description.isLength({ min: 5, max: 255 }) ||
+    sauceObject.mainPepper.isLength({ min: 5, max: 255 }) == false
+  ) {
+    res.status(400).json({
+      message:
+        "Format d'informations invalide, la longueur minimum d'une information doit être de 5 caractères",
+    });
+    return;
+  }
   Sauce.updateOne(
     { _id: req.params.id },
     { ...sauceObject, _id: req.params.id }
@@ -70,7 +95,6 @@ exports.likeOrDislike = (req, res, next) => {
         }
       )
         .then((result) => {
-          console.log(result);
           res.status(200).json({ message: "sauce like ajouté" });
         })
         .catch((error) => res.status(400).json({ error }));

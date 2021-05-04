@@ -1,8 +1,17 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const validator = require("validator");
 
 exports.signup = (req, res, next) => {
+  if (validator.isEmail(req.body.email) == false) {
+    res.status(400).json({ message: "Format d'email invalide" });
+    return;
+  }
+  if (validator.isStrongPassword(req.body.password) == false) {
+    res.status(400).json({ message: "Format de mot de passe invalide" });
+    return;
+  }
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
@@ -19,6 +28,14 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
+  if (validator.isEmail(req.body.email) == false) {
+    res.status(400).json({ message: "Format d'email invalide" });
+    return;
+  }
+  if (validator.isStrongPassword(req.body.password) == false) {
+    res.status(400).json({ message: "Format de mot de passe invalide" });
+    return;
+  }
   User.findOne({ email: req.body.email })
     .then((user) => {
       if (!user) {
